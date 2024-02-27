@@ -8,11 +8,11 @@ const listUrlsImages = (responseData) => {
   return urlsImages;
 };
 
-const main = async () => {
+const listTenImagesUrls = async () => {
   const getImagesData = await fetch(API_CATS_URL);
   const response = await getImagesData.json();
   const listUrls = listUrlsImages(response);
   return listUrls;
 };
 
-main();
+listTenImagesUrls();
