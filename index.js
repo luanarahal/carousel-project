@@ -6,7 +6,7 @@ let allUrlsImages = [];
 let contador = 0;
 
 window.addEventListener("load", () => {
-  imageBannerHTML();
+  imageBannerHTML;
 });
 
 const listUrlsImages = (responseData) => {
@@ -28,34 +28,33 @@ const main = async () => {
   const list = await listTenImagesUrls();
   imageBannerHTML.setAttribute("src", list[contador]);
   allUrlsImages = list;
+  nextImage;
   console.log(allUrlsImages);
 };
 
 main();
 
-nextButtonHTML.addEventListener("click", () => {
-  if (contador == allUrlsImages.length - 1) {
-    contador = 0;
-  } else {
-    contador++;
-  }
-  imageBannerHTML.setAttribute("src", allUrlsImages[contador]);
-});
+let initialIntervalId = null;
 
-previousButtonHTML.addEventListener("click", () => {
-  if (contador == 0) {
-    contador = allUrlsImages.length - 1;
-  } else {
-    contador--;
-  }
-  imageBannerHTML.setAttribute("src", allUrlsImages[contador]);
-});
+const intervalCount = () => {
+  clearInterval(initialIntervalId);
+  initialIntervalId = setInterval(() => {
+    switchBannerImage();
+  }, 5000);
+};
+intervalCount();
 
-setTimeout(() => {
-  if (contador == allUrlsImages.length - 1) {
-    contador = 0;
-  } else {
-    contador++;
+const switchBannerImage = (direction = "next") => {
+  if (direction === "next") {
+    contador == allUrlsImages.length - 1 ? (contador = 0) : contador++;
+  } else if (direction === "previous") {
+    contador == 0 ? (contador = allUrlsImages.length - 1) : contador--;
   }
   imageBannerHTML.setAttribute("src", allUrlsImages[contador]);
-}, 5000);
+};
+
+nextButtonHTML.addEventListener("click", () => switchBannerImage());
+
+previousButtonHTML.addEventListener("click", () =>
+  switchBannerImage("previous")
+);
