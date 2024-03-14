@@ -1,48 +1,43 @@
 const API_CATS_URL = "https://api.thecatapi.com/v1/images/search?limit=10";
 const previousButtonHTML = document.getElementById("previousButton");
 const nextButtonHTML = document.getElementById("nextButton");
-const imageBannerHTML = document.getElementById("imageBanner");
+const imageBanner = document.getElementById("imageBanner");
 let allUrlsImages = [];
 let contador = 0;
 
 window.addEventListener("load", () => {
-  imageBannerHTML;
+  imageBanner;
 });
 
-const listUrlsImages = (responseData) => {
-  const urlsImages = [];
-  for (const imageUrl of responseData) {
-    urlsImages.push(imageUrl.url);
-  }
-  return urlsImages;
+const extractImageUrls = (responseData) => {
+  return responseData.map((imageUrl) => imageUrl.url);
 };
 
-const listTenImagesUrls = async () => {
-  const getImagesData = await fetch(API_CATS_URL);
-  const response = await getImagesData.json();
-  const listUrls = listUrlsImages(response);
+const fetchTenImageUrls = async () => {
+  const response = await fetch(API_CATS_URL);
+  const imageData = await response.json();
+  const listUrls = extractImageUrls(imageData);
   return listUrls;
 };
 
-const main = async () => {
-  const list = await listTenImagesUrls();
-  imageBannerHTML.setAttribute("src", list[contador]);
+const startImageCarousel = async () => {
+  const list = await fetchTenImageUrls();
+  imageBanner.setAttribute("src", list[contador]);
   allUrlsImages = list;
   nextImage;
-  console.log(allUrlsImages);
 };
 
-main();
+startImageCarousel();
 
 let initialIntervalId = null;
 
-const intervalCount = () => {
+const startNextImage = () => {
   clearInterval(initialIntervalId);
   initialIntervalId = setInterval(() => {
     switchBannerImage();
   }, 5000);
 };
-intervalCount();
+startNextImage();
 
 const switchBannerImage = (direction = "next") => {
   if (direction === "next") {
@@ -50,7 +45,7 @@ const switchBannerImage = (direction = "next") => {
   } else if (direction === "previous") {
     contador == 0 ? (contador = allUrlsImages.length - 1) : contador--;
   }
-  imageBannerHTML.setAttribute("src", allUrlsImages[contador]);
+  imageBanner.setAttribute("src", allUrlsImages[contador]);
 };
 
 nextButtonHTML.addEventListener("click", () => switchBannerImage());
