@@ -11,9 +11,8 @@ window.addEventListener("load", () => {
 
 const listUrlsImages = (responseData) => {
   const urlsImages = [];
-  for (const imageUrl of responseData) {
-    urlsImages.push(imageUrl.url);
-  }
+  responseData.map((imageUrl) => urlsImages.push(imageUrl.url));
+
   return urlsImages;
 };
 
@@ -29,7 +28,6 @@ const main = async () => {
   imageBannerHTML.setAttribute("src", list[contador]);
   allUrlsImages = list;
   nextImage;
-  console.log(allUrlsImages);
 };
 
 main();
