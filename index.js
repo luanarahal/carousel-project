@@ -29,6 +29,20 @@ const startImageCarousel = async () => {
 
 startImageCarousel();
 
+const displayBanner = () => {
+  imageBanner.setAttribute("src", allUrlsImages[contador]);
+}
+
+const nextBanner = () => {
+  contador = (contador + 1) % allUrlsImages.length;
+  displayBanner();
+}
+
+const previousBanner = () => {
+  contador = (contador - 1 + allUrlsImages.length) % allUrlsImages.length;
+  displayBanner();
+}
+
 let initialIntervalId = null;
 
 const startNextImage = () => {
@@ -39,17 +53,16 @@ const startNextImage = () => {
 };
 startNextImage();
 
-const switchBannerImage = (direction = "next") => {
-  if (direction === "next") {
-    contador == allUrlsImages.length - 1 ? (contador = 0) : contador++;
-  } else if (direction === "previous") {
-    contador == 0 ? (contador = allUrlsImages.length - 1) : contador--;
+const switchBannerImage = (isNext = true) => {
+  if (isNext) {
+    nextBanner();
+  } else {
+    previousBanner();
   }
-  imageBanner.setAttribute("src", allUrlsImages[contador]);
 };
 
 nextButtonHTML.addEventListener("click", () => switchBannerImage());
 
 previousButtonHTML.addEventListener("click", () =>
-  switchBannerImage("previous")
+  switchBannerImage(false)
 );
