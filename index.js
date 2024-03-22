@@ -3,7 +3,7 @@ const previousButtonHTML = document.getElementById("previousButton");
 const nextButtonHTML = document.getElementById("nextButton");
 const imageBanner = document.getElementById("imageBanner");
 let allUrlsImages = [];
-let contador = 0;
+let counter = 0;
 
 window.addEventListener("load", () => {
   imageBanner;
@@ -21,27 +21,23 @@ const fetchTenImageUrls = async () => {
 };
 
 const startImageCarousel = async () => {
-  const list = await fetchTenImageUrls();
-  imageBanner.setAttribute("src", list[contador]);
-  allUrlsImages = list;
-  nextImage;
+  allUrlsImages = await fetchTenImageUrls();
+  displayBanner();
 };
 
-startImageCarousel();
-
 const displayBanner = () => {
-  imageBanner.setAttribute("src", allUrlsImages[contador]);
-}
+  imageBanner.setAttribute("src", allUrlsImages[counter]);
+};
 
 const nextBanner = () => {
-  contador = (contador + 1) % allUrlsImages.length;
+  counter = (counter + 1) % allUrlsImages.length;
   displayBanner();
-}
+};
 
 const previousBanner = () => {
-  contador = (contador - 1 + allUrlsImages.length) % allUrlsImages.length;
+  counter = (counter - 1 + allUrlsImages.length) % allUrlsImages.length;
   displayBanner();
-}
+};
 
 let initialIntervalId = null;
 
@@ -51,7 +47,6 @@ const startNextImage = () => {
     switchBannerImage();
   }, 5000);
 };
-startNextImage();
 
 const switchBannerImage = (isNext = true) => {
   if (isNext) {
@@ -63,6 +58,7 @@ const switchBannerImage = (isNext = true) => {
 
 nextButtonHTML.addEventListener("click", () => switchBannerImage());
 
-previousButtonHTML.addEventListener("click", () =>
-  switchBannerImage(false)
-);
+previousButtonHTML.addEventListener("click", () => switchBannerImage(false));
+
+startNextImage();
+startImageCarousel();
