@@ -13,15 +13,14 @@ const extractImageUrls = (responseData) => {
   return responseData.map((imageUrl) => imageUrl.url);
 };
 
-const fetchTenImageUrls = async () => {
-  const response = await fetch(API_CATS_URL);
+const fetchTenImageUrls = async (url) => {
+  const response = await fetch(url);
   const imageData = await response.json();
-  const listUrls = extractImageUrls(imageData);
-  return listUrls;
+  return extractImageUrls(imageData);
 };
 
-const startImageCarousel = async () => {
-  allUrlsImages = await fetchTenImageUrls();
+const startImageCarousel = async (url) => {
+  allUrlsImages = await fetchTenImageUrls(url);
   displayBanner(counter, allUrlsImages);
 };
 
@@ -38,21 +37,29 @@ const counterCalculate = (images, imagePosition, isNext) => {
 
 let initialIntervalId = null;
 
-const startNextImage = () => {
+const startNextImage = (image) => {
   clearInterval(initialIntervalId);
   initialIntervalId = setInterval(() => {
-    switchBannerImage();
+    switchBannerImage(true, image);
   }, 5000);
 };
 
-const switchBannerImage = (isNext = true) => {
-  counter = counterCalculate(allUrlsImages, counter, isNext);
-  displayBanner(counter, allUrlsImages);
+const switchBannerImage = (isNext = true, image) => {
+  counter = counterCalculate(image, counter, isNext);
+  displayBanner(counter, image);
 };
 
-nextButtonHTML.addEventListener("click", () => switchBannerImage());
+nextButtonHTML.addEventListener("click", () =>
+  switchBannerImage(true, allUrlsImages)
+);
 
-previousButtonHTML.addEventListener("click", () => switchBannerImage(false));
+previousButtonHTML.addEventListener("click", () =>
+  switchBannerImage(false, allUrlsImages)
+);
 
-startNextImage();
-startImageCarousel();
+const main = async () => {
+  await startImageCarousel(API_CATS_URL);
+  startNextImage(allUrlsImages);
+};
+
+main();
