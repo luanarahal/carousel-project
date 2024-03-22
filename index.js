@@ -22,21 +22,18 @@ const fetchTenImageUrls = async () => {
 
 const startImageCarousel = async () => {
   allUrlsImages = await fetchTenImageUrls();
-  displayBanner();
+  displayBanner(counter, allUrlsImages);
 };
 
-const displayBanner = () => {
-  imageBanner.setAttribute("src", allUrlsImages[counter]);
+const displayBanner = (imagePosition, images) => {
+  imageBanner.setAttribute("src", images[imagePosition]);
 };
 
-const nextBanner = () => {
-  counter = (counter + 1) % allUrlsImages.length;
-  displayBanner();
-};
-
-const previousBanner = () => {
-  counter = (counter - 1 + allUrlsImages.length) % allUrlsImages.length;
-  displayBanner();
+const counterCalculate = (images, imagePosition, isNext) => {
+  if (!isNext) {
+    return (imagePosition - 1 + images.length) % images.length;
+  }
+  return (imagePosition + 1) % images.length;
 };
 
 let initialIntervalId = null;
@@ -49,11 +46,8 @@ const startNextImage = () => {
 };
 
 const switchBannerImage = (isNext = true) => {
-  if (isNext) {
-    nextBanner();
-  } else {
-    previousBanner();
-  }
+  counter = counterCalculate(allUrlsImages, counter, isNext);
+  displayBanner(counter, allUrlsImages);
 };
 
 nextButtonHTML.addEventListener("click", () => switchBannerImage());
