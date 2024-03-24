@@ -1,65 +1,77 @@
-const API_CATS_URL = "https://api.thecatapi.com/v1/images/search?limit=10";
-const previousButtonHTML = document.getElementById("previousButton");
-const nextButtonHTML = document.getElementById("nextButton");
-const imageBanner = document.getElementById("imageBanner");
-let allUrlsImages = [];
-let counter = 0;
+const carousels = [
+  {
+    api: 'https://api.thecatapi.com/v1/images/search?limit=10' ,
+    previousButton: document.getElementById("previousButton1"),
+    nextButton: document.getElementById("nextButton1"),
+    carouselContainer: document.getElementById("imageBanner1"),
+    counter: 0,
+    allUrlsImages: [],
+    autoSwitch: null
+  },
+  {
+    api: 'https://api.thedogapi.com/v1/images/search?limit=10' ,
+    previousButton: document.getElementById("previousButton2"),
+    nextButton: document.getElementById("nextButton2"),
+    carouselContainer: document.getElementById("imageBanner2"),
+    counter: 0,
+    allUrlsImages: [],
+    autoSwitch: null
+  }
+]
 
-window.addEventListener("load", () => {
-  imageBanner;
-});
-
-const extractImageUrls = (responseData) => {
-  return responseData.map((imageUrl) => imageUrl.url);
-};
 
 const fetchTenImageUrls = async (url) => {
   const response = await fetch(url);
   const imageData = await response.json();
-  return extractImageUrls(imageData);
+  return imageData.map((imageUrl) => imageUrl.url);
 };
 
-const startImageCarousel = async (url) => {
-  allUrlsImages = await fetchTenImageUrls(url);
-  displayBanner(counter, allUrlsImages);
+const startImageCarousel = async (carousel) => {
+  carousel.allUrlsImages = await fetchTenImageUrls(carousel.api);
+  displayBanner(carousel.carouselContainer, carousel.allUrlsImages[carousel.counter]);
 };
 
-const displayBanner = (imagePosition, images) => {
-  imageBanner.setAttribute("src", images[imagePosition]);
+const displayBanner = (carouselContainer, image) => {
+  carouselContainer.setAttribute("src", image);
 };
 
-const counterCalculate = (images, imagePosition, isNext) => {
-  if (!isNext) {
-    return (imagePosition - 1 + images.length) % images.length;
-  }
-  return (imagePosition + 1) % images.length;
+const counterCalculate = (imagesLength, counter, isNext) => {
+  const step = isNext ? 1 : -1;
+  return (counter + step + imagesLength) % imagesLength;
 };
 
-let initialIntervalId = null;
-
-const startNextImage = (image) => {
-  clearInterval(initialIntervalId);
-  initialIntervalId = setInterval(() => {
-    switchBannerImage(true, image);
+const startAutoSwitchImage = (carousel) => {
+  return setInterval(() => {
+    console.log("Vai trocar a imagem")
+    switchBannerImage(true, carousel);
   }, 5000);
 };
 
-const switchBannerImage = (isNext = true, image) => {
-  counter = counterCalculate(image, counter, isNext);
-  displayBanner(counter, image);
+const switchBannerImage = (isNext = true, carousel) => {
+  carousel.counter = counterCalculate(carousel.allUrlsImages.length, carousel.counter, isNext);
+  displayBanner(carousel.carouselContainer, carousel.allUrlsImages[carousel.counter]);
 };
 
-nextButtonHTML.addEventListener("click", () =>
-  switchBannerImage(true, allUrlsImages)
-);
+const setAllEventListenners = (carousel) => {
+  carousel.nextButton.addEventListener("click", () => {
+    switchBannerImage(true, carousel);
+    clearInterval(carousel.autoSwitch);
+    carousel.autoSwitch = startAutoSwitchImage(carousel);
+  });
 
-previousButtonHTML.addEventListener("click", () =>
-  switchBannerImage(false, allUrlsImages)
-);
+  carousel.previousButton.addEventListener("click", () => {
+    switchBannerImage(false, carousel);
+    clearInterval(carousel.autoSwitch);
+    carousel.autoSwitch = startAutoSwitchImage(carousel);
+  });
+};
 
 const main = async () => {
-  await startImageCarousel(API_CATS_URL);
-  startNextImage(allUrlsImages);
+  for (const carousel of carousels) {
+    await startImageCarousel(carousel);
+    carouselAutoSwitch = startAutoSwitchImage(carousel);
+    setAllEventListenners(carousel);
+  }
 };
 
 main();
