@@ -1,58 +1,77 @@
-const API_CATS_URL = "https://api.thecatapi.com/v1/images/search?limit=10";
-const previousButtonHTML = document.getElementById("previousButton");
-const nextButtonHTML = document.getElementById("nextButton");
-const imageBanner = document.getElementById("imageBanner");
-let allUrlsImages = [];
-let counter = 0;
-
-window.addEventListener("load", () => {
-  imageBanner;
-});
-
-const extractImageUrls = (responseData) => {
-  return responseData.map((imageUrl) => imageUrl.url);
-};
-
-const fetchTenImageUrls = async () => {
-  const response = await fetch(API_CATS_URL);
-  const imageData = await response.json();
-  const listUrls = extractImageUrls(imageData);
-  return listUrls;
-};
-
-const startImageCarousel = async () => {
-  allUrlsImages = await fetchTenImageUrls();
-  displayBanner(counter, allUrlsImages);
-};
-
-const displayBanner = (imagePosition, images) => {
-  imageBanner.setAttribute("src", images[imagePosition]);
-};
-
-const counterCalculate = (images, imagePosition, isNext) => {
-  if (!isNext) {
-    return (imagePosition - 1 + images.length) % images.length;
+const carousels = [
+  {
+    api: 'https://api.thecatapi.com/v1/images/search?limit=10' ,
+    previousButton: document.getElementById("previousButton1"),
+    nextButton: document.getElementById("nextButton1"),
+    carouselContainer: document.getElementById("imageBanner1"),
+    counter: 0,
+    allUrlsImages: [],
+    autoSwitch: null
+  },
+  {
+    api: 'https://api.thedogapi.com/v1/images/search?limit=10' ,
+    previousButton: document.getElementById("previousButton2"),
+    nextButton: document.getElementById("nextButton2"),
+    carouselContainer: document.getElementById("imageBanner2"),
+    counter: 0,
+    allUrlsImages: [],
+    autoSwitch: null
   }
-  return (imagePosition + 1) % images.length;
+]
+
+
+const fetchTenImageUrls = async (url) => {
+  const response = await fetch(url);
+  const imageData = await response.json();
+  return imageData.map((imageUrl) => imageUrl.url);
 };
 
-let initialIntervalId = null;
+const startImageCarousel = async (carousel) => {
+  carousel.allUrlsImages = await fetchTenImageUrls(carousel.api);
+  displayBanner(carousel.carouselContainer, carousel.allUrlsImages[carousel.counter]);
+};
 
-const startNextImage = () => {
-  clearInterval(initialIntervalId);
-  initialIntervalId = setInterval(() => {
-    switchBannerImage();
+const displayBanner = (carouselContainer, image) => {
+  carouselContainer.setAttribute("src", image);
+};
+
+const counterCalculate = (imagesLength, counter, isNext) => {
+  const step = isNext ? 1 : -1;
+  return (counter + step + imagesLength) % imagesLength;
+};
+
+const startAutoSwitchImage = (carousel) => {
+  return setInterval(() => {
+    console.log("Vai trocar a imagem")
+    switchBannerImage(true, carousel);
   }, 5000);
 };
 
-const switchBannerImage = (isNext = true) => {
-  counter = counterCalculate(allUrlsImages, counter, isNext);
-  displayBanner(counter, allUrlsImages);
+const switchBannerImage = (isNext = true, carousel) => {
+  carousel.counter = counterCalculate(carousel.allUrlsImages.length, carousel.counter, isNext);
+  displayBanner(carousel.carouselContainer, carousel.allUrlsImages[carousel.counter]);
 };
 
-nextButtonHTML.addEventListener("click", () => switchBannerImage());
+const setAllEventListenners = (carousel) => {
+  carousel.nextButton.addEventListener("click", () => {
+    switchBannerImage(true, carousel);
+    clearInterval(carousel.autoSwitch);
+    carousel.autoSwitch = startAutoSwitchImage(carousel);
+  });
 
-previousButtonHTML.addEventListener("click", () => switchBannerImage(false));
+  carousel.previousButton.addEventListener("click", () => {
+    switchBannerImage(false, carousel);
+    clearInterval(carousel.autoSwitch);
+    carousel.autoSwitch = startAutoSwitchImage(carousel);
+  });
+};
 
-startNextImage();
-startImageCarousel();
+const main = async () => {
+  for (const carousel of carousels) {
+    await startImageCarousel(carousel);
+    carouselAutoSwitch = startAutoSwitchImage(carousel);
+    setAllEventListenners(carousel);
+  }
+};
+
+main();
