@@ -33,7 +33,7 @@ const createElementButton = (elementId, elementContent) => {
   divButtonHTML.appendChild(spanButtonHTML);
 
   return divButtonHTML;
-}
+};
 
 const createElementImg = (elementId) => {
   const divImgHTML = document.createElement("div");
@@ -45,7 +45,7 @@ const createElementImg = (elementId) => {
   divImgHTML.appendChild(imgHTML);
 
   return divImgHTML;
-}
+};
 
 carousels.forEach((element) => {
   const buttonPrevious = createElementButton(element.previousButtonId, "<");
@@ -63,12 +63,9 @@ const fetchTenImageUrls = async (url) => {
   return imageData.map((imageUrl) => imageUrl.url);
 };
 
-const startImageCarousel = async (carousel, carouselBanner) => {
+const startImageCarousel = async (carousel, banner) => {
   carousel.allUrlsImages = await fetchTenImageUrls(carousel.api);
-  displayBanner(
-    carouselBanner,
-    carousel.allUrlsImages[carousel.counter]
-  );
+  displayBanner(banner, carousel.allUrlsImages[carousel.counter]);
 };
 
 const displayBanner = (carouselContainer, image) => {
@@ -80,10 +77,10 @@ const counterCalculate = (imagesLength, counter, isNext) => {
   return (counter + step + imagesLength) % imagesLength;
 };
 
-const startAutoSwitchImage = (carousel, carouselBanner) => {
+const startAutoSwitchImage = (carousel, banner) => {
   return setInterval(() => {
-    switchBannerImage(true, carousel, carouselBanner);
-  }, 5000);
+    switchBannerImage(true, carousel, banner);
+  }, 3000);
 };
 
 const switchBannerImage = (isNext = true, carousel, banner) => {
@@ -92,23 +89,28 @@ const switchBannerImage = (isNext = true, carousel, banner) => {
     carousel.counter,
     isNext
   );
-  displayBanner(
-    banner,
-    carousel.allUrlsImages[carousel.counter]
-  );
+  displayBanner(banner, carousel.allUrlsImages[carousel.counter]);
 };
 
-const setAllEventListenners = (carousel, nextButton, previousButton, carouselBanner) => {
-  nextButton.addEventListener("click", () => {
-    switchBannerImage(true, carousel, carouselBanner);
-    clearInterval(carousel.autoSwitch);
-    carousel.autoSwitch = startAutoSwitchImage(carousel, carouselBanner);
-  });
+const setAllEventListenners = (
+  nextButton,
+  previousButton,
+  banner,
+  carousel
+) => {
+  eventChangeImage(nextButton, banner, true, carousel);
+  eventChangeImage(previousButton, banner, false, carousel);
+};
 
-  previousButton.addEventListener("click", () => {
-    switchBannerImage(false, carousel, carouselBanner);
+const eventChangeImage = (buttonHTML, banner, isNext, carousel) => {
+  buttonHTML.addEventListener("click", () => {
+    switchBannerImage(isNext, carousel, banner);
     clearInterval(carousel.autoSwitch);
-    carousel.autoSwitch = startAutoSwitchImage(carousel, carouselBanner);
+    autoSwitch = startAutoSwitchImage(
+      carousel.counter,
+      carousel.allUrlsImages,
+      banner
+    );
   });
 };
 
@@ -116,11 +118,11 @@ const main = async () => {
   for (const carousel of carousels) {
     const previousButton = document.getElementById(carousel.previousButtonId);
     const nextButton = document.getElementById(carousel.nextButtonId);
-    const carouselBanner = document.getElementById(carousel.carouselBannerId);
+    const banner = document.getElementById(carousel.carouselBannerId);
 
-    await startImageCarousel(carousel, carouselBanner);
-    carouselAutoSwitch = startAutoSwitchImage(carousel, carouselBanner);
-    setAllEventListenners(carousel, nextButton, previousButton, carouselBanner);
+    await startImageCarousel(carousel, banner);
+    carouselAutoSwitch = startAutoSwitchImage(carousel, banner);
+    setAllEventListenners(nextButton, previousButton, banner, carousel);
   }
 };
 
